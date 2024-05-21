@@ -17,7 +17,17 @@ const app = express();
 
 // MIDDLEWARE
 app.use(logger('dev'));
-app.use(cors());
+
+const corsOptions = {
+	origin: '*',
+	methods: ['GET', 'POST', 'PUT'],
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	optionsSuccessStatus: 200
+  };
+  
+app.use(cors(corsOptions));
+// app.use(cors());
+
 app.use(express.static('public'));
 app.use(express.json());
 

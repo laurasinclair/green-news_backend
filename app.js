@@ -22,9 +22,9 @@ const corsOptions = {
 	origin: '*',
 	methods: ['GET', 'POST', 'PUT'],
 	allowedHeaders: ['Content-Type', 'Authorization'],
-	optionsSuccessStatus: 200
-  };
-  
+	optionsSuccessStatus: 200,
+};
+
 app.use(cors(corsOptions));
 // app.use(cors());
 
@@ -46,23 +46,25 @@ mongoose
 	.catch((err) => console.error('Error connecting to mongo', err));
 
 // ROUTES
-//  GET  / route - This is just an example route
+app.get('/', (req, res, next) => {
+	res.json('All good in here');
+});
+
 app.get('/users', (req, res) => {
 	User.find()
 		.then((allUsers) => {
-			console.log('🟢 Users found'), res.status(200).json(allUsers)
+			console.log('🟢 Users found'), res.status(200).json(allUsers);
 		})
 		.catch((error) => {
-			console.error('🔴 Failed to display user', error)
-			res.status(500).json({ error: '🔴 Failed to display user' })
-		})
+			console.error('🔴 Failed to display user', error);
+			res.status(500).json({ error: '🔴 Failed to display user' });
+		});
 });
 
-//  GET  / route - This is just an example route
 app.get('/users/:username', (req, res) => {
 	const DBuserName = req.params.username;
 
-	User.findOne({'userInfo.username': DBuserName})
+	User.findOne({ 'userInfo.username': DBuserName })
 		.then((user) => {
 			res.status(200).json(user);
 		})

@@ -3,7 +3,7 @@ const logger = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('./models/User.model');
+const User = require('../models/User.model');
 
 const PORT = process.env.PORT || 5005;
 const apiKey = process.env.MONGODB_API_KEY;

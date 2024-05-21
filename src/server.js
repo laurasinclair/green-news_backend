@@ -21,7 +21,7 @@ app.use(logger('dev'));
 const corsOptions = {
 	origin: '*',
 	methods: ['GET', 'POST', 'PUT'],
-	allowedHeaders: ['Content-Type', 'Authorization'],
+	allowedHeaders: ['Content-Type', 'Authorization', 'api-key'],
 	optionsSuccessStatus: 200,
 };
 

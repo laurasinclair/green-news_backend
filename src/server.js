@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require("helmet");
 const logger = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
@@ -16,6 +17,7 @@ const appName = process.env.MONGODB_APPNAME;
 const app = express();
 
 // MIDDLEWARE
+app.use(helmet());
 app.use(logger('dev'));
 
 const corsOptions = {

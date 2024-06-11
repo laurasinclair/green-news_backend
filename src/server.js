@@ -20,14 +20,13 @@ app.use(helmet());
 app.use(logger('dev'));
 
 const corsOptions = {
-	origin: '*',
+	origin: 'https://dev.laurasnclr.com',
 	methods: ['GET', 'POST', 'PUT'],
 	allowedHeaders: ['Content-Type', 'Authorization', 'api-key'],
 	optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-// app.use(cors());
 
 app.use(express.static('public'));
 app.use(express.json());

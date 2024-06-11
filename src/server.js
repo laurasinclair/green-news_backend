@@ -20,7 +20,7 @@ app.use(helmet());
 app.use(logger('dev'));
 
 const corsOptions = {
-	origin: 'https://dev.laurasnclr.com',
+	origin: ['https://dev.laurasnclr.com', 'http://localhost:5005'],
 	methods: ['GET', 'POST', 'PUT'],
 	allowedHeaders: ['Content-Type', 'Authorization', 'api-key'],
 	optionsSuccessStatus: 200,

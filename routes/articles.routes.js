@@ -12,10 +12,12 @@ router.get('/', (req, res) => {
 	
 	try {
 		fetch(
-			`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=nature&api-key=${process.env.NYTIMES_API_TOKEN}&page=${page}`)
+			`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=nature&fq='forests AND wildlife AND climate'&api-key=${process.env.NYTIMES_API_TOKEN}&page=${page}`)
 			.then((resp) => resp.json())
 			.then((data) => {
-				res.status(200).json(data.response);
+				const articles = data.response.docs
+				const totalArticles = data.response.meta.hits
+				res.status(200).json({articles, totalArticles});
 			})
 			.catch((error) => {
 				console.error(error);

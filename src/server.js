@@ -4,7 +4,6 @@ const logger = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('../models/User.model');
 
 const PORT = process.env.PORT || 5005;
 const apiKey = process.env.MONGODB_API_KEY;
@@ -47,39 +46,21 @@ mongoose
 	)
 	.catch((err) => console.error('Error connecting to mongo', err));
 
+
 // ROUTES
 app.get('/', (req, res, next) => {
-	res.json('All good in here');
+	res.json('☀️');
 });
 
-app.get('/users', (req, res) => {
-	User.find()
-		.then((allUsers) => {
-			console.log('🟢 Users found'), res.status(200).json(allUsers);
-		})
-		.catch((error) => {
-			console.error('🔴 Failed to display user', error);
-			res.status(500).json({ error: '🔴 Failed to display user' });
-		});
-});
+const userRoutes = require("../routes/users.routes");
+app.use("/users", userRoutes);
 
-app.get('/users/:username', (req, res) => {
-	const DBuserName = req.params.username;
+app.use("/api/articles", require("../routes/articles.routes"));
 
-	User.findOne({ 'userInfo.username': DBuserName })
-		.then((user) => {
-			res.status(200).json(user);
-		})
-		.catch((error) => {
-			console.error('Failed to find user ' + DBuserName);
-			res.status(500).json(`Failed to find user ${DBuserName}`);
-		});
-});
 
 // Start the server
 app.listen(PORT, () => {
 	console.log(`Server listening on http://localhost:${PORT} ✨`);
 });
 
-//❗️DO NOT REMOVE THE BELOW CODE
 module.exports = app;

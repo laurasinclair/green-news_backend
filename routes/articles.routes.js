@@ -14,7 +14,6 @@ router.get('/', (req, res) => {
 		`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=nature&fq='forests AND wildlife AND climate'&api-key=${process.env.NYTIMES_API_TOKEN}&page=${page}`
 	)
 		.then((resp) => {
-			if (!resp.ok) throw new Error('Network response was not ok');
 			return resp.json();
 		})
 		.then((data) => {

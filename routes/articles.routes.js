@@ -29,9 +29,9 @@ router.get('/', (req, res) => {
 		});
 });
 
-router.get('/article=:articleSlug', (req, res) => {
-	const { articleSlug } = req.params;
-	const articleId = req.headers['article-id'];
+router.get('/article', (req, res) => {
+	const { articleId } = req.headers;
+	console.log(articleId)
 	// console.log('Article ID:', articleId);
 
 	fetch(
@@ -46,7 +46,9 @@ router.get('/article=:articleSlug', (req, res) => {
 				throw new Error('Problem fetching article from NY Times API');
 
 			const article = data.response.docs;
-			res.status(200).json({ article });
+			res.status(200).json({ 
+				"message": `Article ${articleId} found!`, 
+				"article": article });
 		})
 		.catch((error) => {
 			console.log(error.message);

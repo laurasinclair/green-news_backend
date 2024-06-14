@@ -2,6 +2,11 @@ const router = require('express').Router();
 const User = require('../models/User.model.js');
 const mongoose = require('mongoose');
 
+const apiKey = process.env.NYTIMES_API_TOKEN;
+if (!apiKey) {
+	throw new Error('API key not found');
+}
+
 router.get('/', (req, res) => {
 	User.find()
 		.then((allUsers) => {
@@ -50,6 +55,43 @@ router.put('/:username', (req, res) => {
 		});
 });
 
+router.get('/:username/savedarticles', (req, res) => {
+	const { username } = req.params;
+
+	User.findOne({ 'userInfo.username': username })
+		.then((user) => {
+			const savedArticles = user.userInfo.savedArticles;
+
+			const fetchArticles = async () => {
+				try {
+					const responses = await Promise.all(
+						savedArticles.map((articleID) =>
+							fetch(`https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=uri:"${articleID}"&api-key=${apiKey}`)
+							.then((response) => response.json())
+							.catch((error) => console.log(error))
+						)
+					);
+
+					if (responses[0].fault && responses[0].fault.faultstring) {
+						throw new Error(responses[0].fault.faultstring)
+					}
+
+					// res.status(200).json([...responses.docs]);
+					// res.status(200).json(responses);
+				} catch (error) {
+					console.error({'Error fetching articles': error});
+					res.status(500).json({message: 'Error fetching articles: ' + error.message});
+				}
+			};
+
+			fetchArticles();
+		})
+		.catch((error) => {
+			console.error(error);
+			res.status(500).json(`Failed to find user ${username}`);
+		});
+});
+
 router.put('/:username/savedarticles', (req, res) => {
 	const { userId, articleId, action } = req.body;
 
@@ -57,12 +99,12 @@ router.put('/:username/savedarticles', (req, res) => {
 	let updateMessage = '';
 
 	if (action === 'add') {
-		updateMessage = `Article ${articleId} successfully saved`
+		updateMessage = `Article ${articleId} successfully saved`;
 		updateQuery = {
 			$addToSet: { 'userInfo.savedArticles': articleId },
 		};
 	} else if (action === 'remove') {
-		updateMessage = `Article ${articleId} successfully removed`
+		updateMessage = `Article ${articleId} successfully removed`;
 		updateQuery = {
 			$pull: { 'userInfo.savedArticles': articleId },
 		};
@@ -73,12 +115,10 @@ router.put('/:username/savedarticles', (req, res) => {
 	User.findByIdAndUpdate(userId, updateQuery, { new: true })
 		.then((updatedUser) => {
 			// console.log(updatedUser)
-			res
-				.status(200)
-				.json({
-					message: updateMessage,
-					savedArticles: updatedUser.userInfo.savedArticles,
-				});
+			res.status(200).json({
+				message: updateMessage,
+				savedArticles: updatedUser.userInfo.savedArticles,
+			});
 		})
 		.catch((error) => {
 			console.log(error);

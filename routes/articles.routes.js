@@ -42,7 +42,7 @@ router.get('/article=:articleSlug', (req, res) => {
 		})
 		.then((data) => {
 			console.log(data);
-			if (!data || data.response)
+			if (!data || !data.response)
 				throw new Error('Problem fetching article from NY Times API');
 
 			const article = data.response.docs;

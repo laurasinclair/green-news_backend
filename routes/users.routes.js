@@ -26,4 +26,18 @@ router.get('/:username', (req, res) => {
 		});
 });
 
+router.put('/:username', (req, res) => {
+	const DBuserName = req.params.username;
+	const userId = req.body.id;
+
+	User.findByIdAndUpdate(userId, req.body)
+		.then((updatedUser) => {
+			res.status(201).json(updatedUser);
+		})
+		.catch((error) => {
+			console.log(error)
+			res.status(500).json({ error: 'Failed to update user info' });
+		});
+});
+
 module.exports = router;

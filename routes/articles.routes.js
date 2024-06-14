@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 		.then((data) => {
 			if (!data) throw new Error('Problem fetching from NY Times API');
 
-			const articles = data.response.docs;
+			const articles = data.response.docs.slice(0, 9);
 			const totalArticles = data.response.meta.hits;
 			res.status(200).json({ articles, totalArticles });
 		})

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/User.model.js');
 const mongoose = require('mongoose');
+const fileUploader = require('../config/cloudinary.config');
 
 const apiKey = process.env.NYTIMES_API_TOKEN;
 if (!apiKey) {
@@ -55,6 +56,16 @@ router.put('/:username', (req, res) => {
 		});
 });
 
+router.post('/:username/upload', fileUploader.single('file'), (req, res, next) => {
+	console.log('file is: ', req.file);
+
+	if (!req.file) {
+		next(new Error('No file uploaded!'));
+		return;
+	}
+	res.status(200).json({ fileUrl: req.file.path });
+});
+
 router.get('/:username/savedarticles', (req, res) => {
 	const { username } = req.params;
 
@@ -66,21 +77,25 @@ router.get('/:username/savedarticles', (req, res) => {
 				try {
 					const responses = await Promise.all(
 						savedArticles.map((articleID) =>
-							fetch(`https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=uri:"${articleID}"&api-key=${apiKey}`)
-							.then((response) => response.json())
-							.catch((error) => console.log(error))
+							fetch(
+								`https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=uri:"${articleID}"&api-key=${apiKey}`
+							)
+								.then((response) => response.json())
+								.catch((error) => console.log(error))
 						)
 					);
 
 					if (responses[0].fault && responses[0].fault.faultstring) {
-						throw new Error(responses[0].fault.faultstring)
+						throw new Error(responses[0].fault.faultstring);
 					}
 
 					// res.status(200).json([...responses.docs]);
 					// res.status(200).json(responses);
 				} catch (error) {
-					console.error({'Error fetching articles': error});
-					res.status(500).json({message: 'Error fetching articles: ' + error.message});
+					console.error({ 'Error fetching articles': error });
+					res
+						.status(500)
+						.json({ message: 'Error fetching articles: ' + error.message });
 				}
 			};
 

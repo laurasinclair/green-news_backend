@@ -24,7 +24,7 @@ Green News is an innovative application that provides the latest news and update
 
 ## Technologies used
 **Frontend**
-Here is the [frontend repository](https://github.com/laurasinclair/green-news).
+- 👉 Here is the [frontend repository](https://github.com/laurasinclair/green-news).
 - React.js
 - Vite
 - Axios

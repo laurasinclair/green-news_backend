@@ -22,14 +22,7 @@ app.use(logger('dev'));
 const allowedOrigins = ['https://dev.laurasnclr.com', 'http://localhost:5173', 'http://localhost:5174'];
 app.use(
 	cors({
-		origin: function (origin, callback) {
-			if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-				callback(null, true);
-			} else {
-				callback(new Error('Not allowed by CORS'));
-			}
-		},
-
+		origin: allowedOrigins,
 		methods: ['GET', 'POST', 'PUT'],
 		allowedHeaders: ['Content-Type', 'Authorization', 'api-key'],
 		optionsSuccessStatus: 200,

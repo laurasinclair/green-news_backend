@@ -1,5 +1,5 @@
 const express = require('express');
-const helmet = require("helmet");
+const helmet = require('helmet');
 const logger = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
@@ -19,14 +19,22 @@ const app = express();
 app.use(helmet());
 app.use(logger('dev'));
 
-const corsOptions = {
-	origin: 'https://dev.laurasnclr.com',
-	methods: ['GET', 'POST', 'PUT'],
-	allowedHeaders: ['Content-Type', 'Authorization', 'api-key'],
-	optionsSuccessStatus: 200,
-};
+const allowedOrigins = ['https://dev.laurasnclr.com', 'http://localhost:5173', 'http://localhost:5174'];
+app.use(
+	cors({
+		origin: function (origin, callback) {
+			if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+				callback(null, true);
+			} else {
+				callback(new Error('Not allowed by CORS'));
+			}
+		},
 
-app.use(cors(corsOptions));
+		methods: ['GET', 'POST', 'PUT'],
+		allowedHeaders: ['Content-Type', 'Authorization', 'api-key'],
+		optionsSuccessStatus: 200,
+	})
+);
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -39,23 +47,19 @@ const MONGODB_URI = `mongodb+srv://${username}:${pwd}@${dbUrl}/?retryWrites=true
 mongoose
 	.connect(MONGODB_URI, { dbName: 'users' })
 	.then((x) =>
-		console.log(
-			`Connected to Mongo! Database name: "${x.connections[0].name}"`
-		)
+		console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
 	)
 	.catch((err) => console.error('Error connecting to mongo', err));
-
 
 // ROUTES
 app.get('/', (req, res, next) => {
 	res.json('☀️');
 });
 
-const userRoutes = require("../routes/users.routes");
-app.use("/users", userRoutes);
+const userRoutes = require('../routes/users.routes');
+app.use('/users', userRoutes);
 
-app.use("/api/articles", require("../routes/articles.routes"));
-
+app.use('/api/articles', require('../routes/articles.routes'));
 
 // Start the server
 app.listen(PORT, () => {

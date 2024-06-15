@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/User.model.js');
 const mongoose = require('mongoose');
-const fileUploader = require('../config/cloudinary.config');
+// const fileUploader = require('../config/cloudinary.config');
 
 const apiKey = process.env.NYTIMES_API_TOKEN;
 if (!apiKey) {
@@ -56,15 +56,15 @@ router.put('/:username', (req, res) => {
 		});
 });
 
-router.post('/:username/upload', fileUploader.single('file'), (req, res, next) => {
-	console.log('file is: ', req.file);
+// router.post('/:username/upload', fileUploader.single('file'), (req, res, next) => {
+// 	console.log('file is: ', req.file);
 
-	if (!req.file) {
-		next(new Error('No file uploaded!'));
-		return;
-	}
-	res.status(200).json({ fileUrl: req.file.path });
-});
+// 	if (!req.file) {
+// 		next(new Error('No file uploaded!'));
+// 		return;
+// 	}
+// 	res.status(200).json({ fileUrl: req.file.path });
+// });
 
 router.get('/:username/savedarticles', (req, res) => {
 	const { username } = req.params;

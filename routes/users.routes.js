@@ -8,6 +8,10 @@ if (!apiKey) {
 	throw new Error('API key not found');
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 router.get('/', (req, res) => {
 	User.find()
 		.then((allUsers) => {
@@ -89,13 +93,15 @@ router.get('/:username/savedarticles', (req, res) => {
 						throw new Error(responses[0].fault.faultstring);
 					}
 
-					// res.status(200).json([...responses.docs]);
+					res.status(200).json([...responses.docs]);
 					// res.status(200).json(responses);
 				} catch (error) {
 					console.error({ 'Error fetching articles': error });
 					res
 						.status(500)
 						.json({ message: 'Error fetching articles: ' + error.message });
+				} finally {
+					await sleep(1 * 60 * 1000) // make it wait before another call
 				}
 			};
 

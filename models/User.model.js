@@ -8,7 +8,8 @@ const userSchema = new Schema({
         'lastName': {type: String, required: true},
         'savedArticles': {
             'articleId': {type: String, required: true},
-            'articleTitle': {type: String, required: true}
+            'articleTitle': {type: String, required: true},
+            'articleSlug': {type: String, required: true}
         },
         'profilePicture': String
     }

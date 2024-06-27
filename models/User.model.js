@@ -6,7 +6,10 @@ const userSchema = new Schema({
         'username': {type: String, required: true},
         'firstName': {type: String, required: true},
         'lastName': {type: String, required: true},
-        'savedArticles': {type: Array},
+        'savedArticles': {
+            'articleId': {type: String, required: true},
+            'articleTitle': {type: String, required: true}
+        },
         'profilePicture': String
     }
 })

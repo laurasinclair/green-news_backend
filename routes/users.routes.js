@@ -9,7 +9,7 @@ if (!apiKey) {
 }
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 router.get('/', (req, res) => {
@@ -73,6 +73,10 @@ router.put('/:username', (req, res) => {
 router.get('/:username/savedarticles', (req, res) => {
 	const { username } = req.params;
 
+	if (!username) {
+		res.status(404).json({ error: 'No username given' });
+	}
+
 	User.findOne({ 'userInfo.username': username })
 		.then((user) => {
 			const savedArticles = user.userInfo.savedArticles;
@@ -93,7 +97,7 @@ router.get('/:username/savedarticles', (req, res) => {
 						throw new Error(responses[0].fault.faultstring);
 					}
 
-					res.status(200).json([...responses.docs]);
+					res.status(200).json([...responses]);
 					// res.status(200).json(responses);
 				} catch (error) {
 					console.error({ 'Error fetching articles': error });
@@ -101,7 +105,7 @@ router.get('/:username/savedarticles', (req, res) => {
 						.status(500)
 						.json({ message: 'Error fetching articles: ' + error.message });
 				} finally {
-					await sleep(1 * 60 * 1000) // make it wait before another call
+					await sleep(1 * 60 * 1000); // make it wait before another call
 				}
 			};
 
@@ -114,7 +118,7 @@ router.get('/:username/savedarticles', (req, res) => {
 });
 
 router.put('/:username/savedarticles', (req, res) => {
-	const { userId, articleId, action } = req.body;
+	const { userId, articleId, articleTitle, action } = req.body;
 
 	let updateQuery = {};
 	let updateMessage = '';
@@ -122,12 +126,21 @@ router.put('/:username/savedarticles', (req, res) => {
 	if (action === 'add') {
 		updateMessage = `Article ${articleId} successfully saved`;
 		updateQuery = {
-			$addToSet: { 'userInfo.savedArticles': articleId },
+			$addToSet: {
+				'userInfo.savedArticles': {
+					articleId: articleId,
+					articleTitle: articleTitle,
+				},
+			},
 		};
 	} else if (action === 'remove') {
 		updateMessage = `Article ${articleId} successfully removed`;
 		updateQuery = {
-			$pull: { 'userInfo.savedArticles': articleId },
+			$pull: {
+				'userInfo.savedArticles': {
+					articleId: articleId,
+				},
+			},
 		};
 	} else {
 		return res.status(400).json({ error: 'Invalid action' });

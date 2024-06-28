@@ -17,7 +17,9 @@ router.get('/', (req, res) => {
 			return resp.json();
 		})
 		.then((data) => {
-			if (!data) throw new Error('Problem fetching from NY Times API');
+			if (!data || !data.response.docs || data.response.docs.length === 0) {
+				throw new Error({ message: 'Problem fetching from NY Times API' });
+			}
 
 			const articles = data.response.docs.slice(0, 9);
 			const totalArticles = data.response.meta.hits;
@@ -29,26 +31,34 @@ router.get('/', (req, res) => {
 		});
 });
 
-router.get('/article', (req, res) => {
-	const { articleId } = req.headers;
-	console.log(articleId)
-	// console.log('Article ID:', articleId);
+router.get('/article=:articleSlug', (req, res) => {
+	const { articleSlug } = req.params;
+
+	if (!articleSlug || articleSlug === undefined) {
+		res.status(404).json({ message: 'No article slug' });
+		return;
+	}
 
 	fetch(
-		`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${articleId}&api-key=${apiKey}`
+		`https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=headline:'${articleSlug}'&api-key=${apiKey}`
 	)
 		.then((resp) => {
 			return resp.json();
 		})
 		.then((data) => {
-			console.log(data);
-			if (!data || !data.response)
-				throw new Error('Problem fetching article from NY Times API');
+			console.log(data.response)
+			if (!data || !data.response.docs || data.response.docs.length === 0) {
+				return new Error({
+					message: 'Problem fetching article from NY Times API',
+				});
+			}
 
-			const article = data.response.docs;
-			res.status(200).json({ 
-				"message": `Article ${articleId} found!`, 
-				"article": article });
+			const article = { ...data.response.docs[0] };
+			console.log(data.response.docs[0])
+			res.status(200).json({
+				message: `Article ${articleSlug} found!`,
+				article: article,
+			});
 		})
 		.catch((error) => {
 			console.log(error.message);

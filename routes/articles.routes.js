@@ -8,7 +8,7 @@ if (!apiKey) {
 }
 
 router.get('/', (req, res) => {
-	const page = parseInt(req.query.page) || 0;
+	const page = parseInt(req.query.page) || 1;
 
 	fetch(
 		`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=nature&fq='forests AND wildlife AND climate'&api-key=${apiKey}&page=${page}`
@@ -27,7 +27,7 @@ router.get('/', (req, res) => {
 		})
 		.catch((error) => {
 			console.log(error.message);
-			res.status(500).send(error.message);
+			res.status(500).json(error.message);
 		});
 });
 
@@ -63,7 +63,7 @@ router.get('/:articleSlug', (req, res) => {
 		})
 		.catch((error) => {
 			console.log(error.message);
-			res.status(500).send(error.message);
+			res.status(500).json(error.message);
 		});
 });
 

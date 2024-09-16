@@ -90,6 +90,12 @@ router.get('/:username/savedarticles', (req, res) => {
 
 router.put('/:username/savedarticles', (req, res) => {
 	const { userId, articleId, articleTitle, articleSlug, action } = req.body;
+	console.log(userId);
+
+	if (!userId) {
+		console.log('userId missing');
+		return;
+	}
 
 	let updateQuery = {};
 	let updateMessage = '';

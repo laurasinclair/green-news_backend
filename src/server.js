@@ -6,7 +6,6 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 
 const PORT = process.env.PORT || 5005;
-const apiKey = process.env.MONGODB_API_KEY;
 const baseUrl = process.env.MONGODB_BASE_URL;
 const username = process.env.MONGODB_USERNAME;
 const pwd = process.env.MONGODB_PWD;
@@ -19,7 +18,11 @@ const app = express();
 app.use(helmet());
 app.use(logger('dev'));
 
-const allowedOrigins = ['https://dev.laurasnclr.com', 'http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = [
+	'https://dev.laurasnclr.com',
+	'http://localhost:5173',
+	'http://localhost:5174',
+];
 app.use(
 	cors({
 		origin: allowedOrigins,
@@ -32,15 +35,15 @@ app.use(
 app.use(express.static('public'));
 app.use(express.json());
 
-// Iteration 1 - Connect to MongoDB
 // DATABASE CONNECTION
-
 const MONGODB_URI = `mongodb+srv://${username}:${pwd}@${dbUrl}/?retryWrites=true&w=majority&appName=${appName}`;
 
 mongoose
 	.connect(MONGODB_URI, { dbName: 'users' })
 	.then((x) =>
-		console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
+		console.log(
+			`Connected to Mongo! Database name: "${x.connections[0].name}"`
+		)
 	)
 	.catch((err) => console.error('Error connecting to mongo', err));
 

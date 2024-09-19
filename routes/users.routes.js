@@ -47,17 +47,20 @@ router.get('/:username', (req, res) => {
 		});
 });
 
-router.put('/:username', (req, res) => {
+router.put('/:username', async (req, res) => {
 	const userId = req.body._id;
 
-	User.findByIdAndUpdate(userId, req.body)
-		.then((updatedUser) => {
-			res.status(200).json(updatedUser);
-		})
-		.catch((error) => {
-			console.log(error);
-			res.status(500).json({ error: 'Failed to update user info' });
-		});
+	if (!userId) {
+		return res.status(404).json({ message: 'UserId not provided' });
+	}
+
+	const updatedUser = await User.findByIdAndUpdate(userId, req.body);
+	if (!updatedUser) {
+		return res
+			.status(updatedUser.status)
+			.json({ message: 'Problem updating user' });
+	}
+	res.status(200).json(updatedUser);
 });
 
 // router.post('/:username/upload', fileUploader.single('file'), (req, res, next) => {
@@ -74,7 +77,7 @@ router.get('/:username/savedarticles', (req, res) => {
 	const { username } = req.params;
 
 	if (!username) {
-		res.status(404).json({ error: 'No username given' });
+		return res.status(404).json({ error: 'No username given' });
 	}
 
 	User.findOne({ 'userInfo.username': username })
@@ -88,13 +91,11 @@ router.get('/:username/savedarticles', (req, res) => {
 		});
 });
 
-router.put('/:username/savedarticles', (req, res) => {
+router.put('/:username/savedarticles', async (req, res) => {
 	const { userId, articleId, articleTitle, articleSlug, action } = req.body;
-	console.log(userId);
 
-	if (!userId) {
-		console.log('userId missing');
-		return;
+	if (!userId || !articleId || !articleTitle || !articleSlug || !action) {
+		return res.status(404).json({ error: 'Info missing' });
 	}
 
 	let updateQuery = {};
@@ -105,9 +106,7 @@ router.put('/:username/savedarticles', (req, res) => {
 		updateQuery = {
 			$addToSet: {
 				'userInfo.savedArticles': {
-					articleId: articleId,
-					articleTitle: articleTitle,
-					articleSlug: articleSlug,
+					$elemMatch: { articleId: articleId },
 				},
 			},
 		};
@@ -116,7 +115,7 @@ router.put('/:username/savedarticles', (req, res) => {
 		updateQuery = {
 			$pull: {
 				'userInfo.savedArticles': {
-					articleId: articleId,
+					$elemMatch: { articleId: articleId },
 				},
 			},
 		};
@@ -124,18 +123,18 @@ router.put('/:username/savedarticles', (req, res) => {
 		return res.status(400).json({ error: 'Invalid action' });
 	}
 
-	User.findByIdAndUpdate(userId, updateQuery, { new: true })
-		.then((updatedUser) => {
-			// console.log(updatedUser)
-			res.status(200).json({
-				message: updateMessage,
-				savedArticles: updatedUser.userInfo.savedArticles,
-			});
-		})
-		.catch((error) => {
-			console.log(error);
-			res.status(500).json({ error: 'Failed to update user info' });
-		});
+	const updatedUser = await User.findByIdAndUpdate(userId, updateQuery, {
+		new: true,
+	});
+
+	if (!updatedUser) {
+		res.status(500).json({ error: 'Failed to update user info' });
+	}
+
+	res.status(200).json({
+		message: updateMessage,
+		savedArticles: updatedUser.userInfo.savedArticles,
+	});
 });
 
 module.exports = router;

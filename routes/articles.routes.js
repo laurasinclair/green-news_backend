@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
 	const data = await response.json();
 
-	if (response.statusText !== 'OK') {
+	if (response.status !== 200) {
 		throw new Error({
 			message: 'Problem fetching articles from NY Times API',
 		});

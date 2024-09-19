@@ -22,14 +22,13 @@ router.get('/', async (req, res) => {
 	const data = await response.json();
 
 	if (response.status !== 200) {
-		throw new Error({
-			message: 'Problem fetching articles from NY Times API',
-		});
+		return res
+			.status(response.status)
+			.json({ message: 'Problem fetching articles from NY Times API' });
 	}
 
 	const articles = data.response.docs.slice(0, 9);
 	const totalArticles = data.response.meta.hits;
-	console.log(articles);
 	res.status(response.status).json({ articles, totalArticles });
 });
 

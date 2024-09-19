@@ -8,7 +8,7 @@ if (!API_KEY) {
 }
 
 router.get('/', async (req, res) => {
-	const page = parseInt(req.query.page) || 0;
+	const page = parseInt(req.query.page) || 1;
 
 	const response = await fetch(
 		`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=nature&fq='forests AND wildlife AND climate'&api-key=${API_KEY}&page=${page}`,
@@ -22,49 +22,49 @@ router.get('/', async (req, res) => {
 	const data = await response.json();
 
 	if (response.statusText !== 'OK') {
-		throw new Error({ message: 'Problem fetching from NY Times API' });
+		throw new Error({
+			message: 'Problem fetching articles from NY Times API',
+		});
 	}
 
 	const articles = data.response.docs.slice(0, 9);
 	const totalArticles = data.response.meta.hits;
-
+	console.log(articles);
 	res.status(response.status).json({ articles, totalArticles });
 });
 
-router.get('/:articleSlug', (req, res) => {
-	const articleId = 'nyt://article/' + req.query.id;
-	// console.log(articleId);
+const BASE_URL = 'https://api.nytimes.com/svc/search/v2/articlesearch.json';
 
-	if (!articleId || articleId == undefined) {
-		res.status(404).json({ message: 'No article ID' });
-		return;
+router.post('/article', async (req, res) => {
+	const { articleId } = req.body;
+	const fullArticleId = `nyt://article/${articleId}`;
+
+	if (!articleId) {
+		return res.status(500).json({ message: 'No article ID' });
 	}
-	fetch(
-		`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=_id:"${articleId}"&api-key=${apiKey}`
-	)
-		.then((resp) => {
-			return resp.json();
-		})
-		.then((data) => {
-			// console.log(data);
 
-			if (!data || data.status === 'ERROR') {
-				throw new Error({
-					message: 'Problem fetching article from NY Times API',
-				});
-			}
-			if (data.status === 'OK' && data.response.meta.hits > 0) {
-				const article = { ...data.response.docs };
-				res.status(200).json({
-					message: `Article ${articleId} found!`,
-					article: article,
-				});
-			}
-		})
-		.catch((error) => {
-			console.error(error.message);
-			res.status(500).send(error.message);
-		});
+	const url = `${BASE_URL}?fq=_id:"${fullArticleId}"&api-key=${API_KEY}`;
+	const response = await fetch(url);
+
+	const data = await response.json();
+
+	if (response.statusText !== 'OK') {
+		return res
+			.status(response.status)
+			.json({ message: 'Problem fetching article from NY Times API' });
+	}
+
+	if (data.response.meta.hits < 1) {
+		return res.status(404).json({ message: 'No article was found' });
+	} else if (data.response.meta.hits > 1) {
+		return res.status(422).json({ message: 'Too many articles were found' });
+	}
+
+	const article = { ...data.response.docs };
+	res.status(200).json({
+		message: `Article ${articleId} found!`,
+		article: article,
+	});
 });
 
 module.exports = router;

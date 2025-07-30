@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 	}
 
 	const articles = data.response.docs.slice(0, 9);
-	const totalArticles = data.response.meta.hits;
+	const totalArticles = data.response.metadata.hits;
 	res.status(response.status).json({ articles, totalArticles });
 });
 

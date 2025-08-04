@@ -22,9 +22,7 @@ router.get('/', async (req, res) => {
 	const data = await response.json();
 
 	if (response.status !== 200) {
-		return res
-			.status(response.status)
-			.json({ message: 'Problem fetching articles from NY Times API' });
+		return res.status(response.status).json({ message: response.statusText });
 	}
 
 	const articles = data.response.docs.slice(0, 9);

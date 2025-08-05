@@ -50,17 +50,14 @@ router.post('/article', async (req, res) => {
 			.status(response.status)
 			.json({ message: 'Problem fetching article from NY Times API' });
 	}
-
-	if (data.response.meta.hits < 1) {
-		return res.status(404).json({ message: 'No article was found' });
-	} else if (data.response.meta.hits > 1) {
-		return res.status(422).json({ message: 'Too many articles were found' });
-	}
+	
+	if (data.response.metadata.hits < 1) return res.status(404).json({ message: "No article was found" });
+	if (data.response.metadata.hits > 1) return res.status(422).json({ message: "Too many articles were found" });
 
 	const article = { ...data.response.docs };
 	res.status(200).json({
 		message: `Article ${articleId} found!`,
-		article: article,
+		article: article[0],
 	});
 });
 
